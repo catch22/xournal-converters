@@ -8,7 +8,7 @@ with open(join(abspath(dirname(__file__)), 'README.md'), encoding='utf-8') as fp
 setup(
   name='xournal-converters',
   version='0.0.1',
-  description='Converters for Xournal documents',
+  description='Python scripts for converting Xournal documents to HTML and PDF.',
   long_description=long_description,
   url='https://github.com/catch22/xournal-converters',
   author='Michael Walter',
