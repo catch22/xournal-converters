@@ -23,7 +23,7 @@ def main():
   # render PDF
   dest = StringIO()
   c = canvas.Canvas(dest, bottomup=0)
-  errors = []
+  warnings = []
   for page in xml.getroot().iter('page'):
     # set page size
     c.setPageSize((float(page.attrib['width']), float(page.attrib['height'])))
@@ -33,12 +33,12 @@ def main():
     if background.attrib['type'] == 'solid':
       background_color = background.attrib['color']
       if background.attrib['style'] != 'plain':
-        errors.append("Do not know how to handle background style '%s'" % background.attrib['style'])
+        warnings.append("Do not know how to handle background style '%s'" % background.attrib['style'])
       else:
         c.setFillColor(background_color)
         c.rect(0, 0, float(page.attrib['width']), float(page.attrib['height']), stroke=0, fill=1)
     else:
-      errors.append("Do not know how to handle background type '%s'" % background.attrib['type'])
+      warnings.append("Do not know how to handle background type '%s'" % background.attrib['type'])
 
     # render layers
     for layer in page.iter('layer'):
@@ -47,7 +47,7 @@ def main():
         if item.tag == 'stroke':
           # configure pen
           if item.attrib["tool"] not in ["pen", "highlighter"]:
-            errors.append("Do not know how to handle stroke tool '%s'" % item.attrib['tool'])
+            warnings.append("Do not know how to handle stroke tool '%s'" % item.attrib['tool'])
           color = toColor(item.attrib["color"])
           if item.attrib["tool"] == "highlighter":
             color.alpha = 0.5
@@ -69,7 +69,7 @@ def main():
           for line in item.text.split("\n"):
             font = item.attrib["font"]
             if font not in standardFonts:
-              errors.append("Unknown font '%s', falling back to Helvetica." % font)
+              warnings.append("Unknown font '%s', falling back to Helvetica." % font)
               font = "Helvetica"
             c.setFont(font, float(item.attrib["size"]))
 
@@ -95,16 +95,19 @@ def main():
 
         # !?
         else:
-          errors.append("Unknown item '%s'" % item.tag)
+          warnings.append("Unknown item '%s'" % item.tag)
 
     c.showPage()
 
   c.save()
 
-  if errors:
-      print errors
-      sys.exit(-1)
+  # print warnings
+  if warnings:
+    print >> sys.stderr, "WARNINGS:"
+    for line in warnings:
+      print >> sys.stderr, " -", line
 
+  # print PDF
   print dest.getvalue()
 
 
