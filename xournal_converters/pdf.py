@@ -65,16 +65,16 @@ def main():
 
         # render text?
         elif item.tag == 'text':
+          font = item.attrib["font"]
+          if font not in standardFonts:
+            warnings.append("Unknown font '%s', falling back to Helvetica." % font)
+            font = "Helvetica"
+          font_size = float(item.attrib["size"])
+          c.setFont(font, font_size)
+          c.setFillColor(item.attrib["color"])
           dy = 0
           for line in item.text.split("\n"):
-            font = item.attrib["font"]
-            if font not in standardFonts:
-              warnings.append("Unknown font '%s', falling back to Helvetica." % font)
-              font = "Helvetica"
-            c.setFont(font, float(item.attrib["size"]))
-
-            c.setFillColor(item.attrib["color"])
-            c.drawString(item.attrib["x"], dy + float(item.attrib["y"]), line)
+            c.drawString(item.attrib["x"], dy + float(item.attrib["y"]) + font_size, line)
             dy += float(item.attrib["size"])
 
         # render image?

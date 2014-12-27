@@ -49,8 +49,9 @@ def main():
           print >> io, '/>'
         elif item.tag == 'text':
           dy = 0
+          font_size = float(item.attrib["size"])
           for line in item.text.split("\n"):
-            print >> io, '<text font-family="%s" font-size="%s" x="%s" y="%s" fill="%s">%s</text>' % (item.attrib["font"], item.attrib["size"], item.attrib["x"], dy + float(item.attrib["y"]), item.attrib["color"], cgi.escape(line))
+            print >> io, '<text font-family="%s" font-size="%s" x="%s" y="%s" fill="%s">%s</text>' % (item.attrib["font"], font_size, item.attrib["x"], dy + float(item.attrib["y"]) + font_size, item.attrib["color"], cgi.escape(line))
 
             dy += float(item.attrib["size"])
         elif item.tag == 'image':
