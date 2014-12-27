@@ -35,7 +35,7 @@ setup(
     'Environment :: Console',
     'License :: OSI Approved :: MIT License',
   ],
-  install_requires = ['reportlab'],
+  install_requires = ['click', 'reportlab', 'PyPDF2'],
   packages = ['xournal_converters'],
   entry_points = {
     'console_scripts': [

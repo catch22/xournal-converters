@@ -7,7 +7,8 @@ from reportlab.pdfbase._fontdata import standardFonts
 from reportlab.lib.utils import ImageReader
 from StringIO import StringIO
 from base64 import b64decode
-import gzip, sys
+from PyPDF2 import PdfFileReader, PdfFileWriter
+import gzip, sys, os.path, click
 
 
 def main():
@@ -24,7 +25,9 @@ def main():
   dest = StringIO()
   c = canvas.Canvas(dest, bottomup=0)
   warnings = []
-  for page in xml.getroot().iter('page'):
+  pdf_background_filename = None
+  pdf_background_pages = {}
+  for pageno, page in enumerate(xml.getroot().iter('page')):
     # set page size
     c.setPageSize((float(page.attrib['width']), float(page.attrib['height'])))
 
@@ -32,11 +35,24 @@ def main():
     background = page.find('background')
     if background.attrib['type'] == 'solid':
       background_color = background.attrib['color']
-      if background.attrib['style'] != 'plain':
-        warnings.append("Do not know how to handle background style '%s'" % background.attrib['style'])
-      else:
+      if background.attrib['style'] == 'plain':
         c.setFillColor(background_color)
         c.rect(0, 0, float(page.attrib['width']), float(page.attrib['height']), stroke=0, fill=1)
+      else:
+        warnings.append("Do not know how to handle background style '%s'" % background.attrib['style'])
+    elif background.attrib['type'] == 'pdf':
+      if 'domain' in background.attrib:
+        # determine filename according to Xournal rules
+        domain = background.attrib['domain']
+        if domain == 'absolute':
+          pdf_background_filename = background.attrib['filename']
+        elif domain == 'attach':
+          pdf_background_filename = "%s.%s" % (args.src, background.attrib['filename'])
+        else:
+          warnings.append("Do not know how to handle PDF background domain '%s'" % domain)
+
+      # add page number mapping
+      pdf_background_pages[pageno] = int(background.attrib['pageno']) - 1
     else:
       warnings.append("Do not know how to handle background type '%s'" % background.attrib['type'])
 
@@ -99,7 +115,37 @@ def main():
 
     c.showPage()
 
+  # save PDF in the StringIO object (`dest`)
   c.save()
+
+  # PDF file not found? Attempt to guess better if Xournal filename is of the form 'filename.pdf.xoj'.
+  if pdf_background_filename and not os.path.exists(pdf_background_filename):
+    if args.src.endswith('.pdf.xoj'):
+      warnings.append("File not found '%s', attempting to use '%s' instead." % (pdf_background_filename, args.src[:-4]))
+      pdf_background_filename = args.src[:-4]
+
+  pdf_writer = None
+  if pdf_background_filename:
+    if not os.path.exists(pdf_background_filename):
+      warnings.append("File not found '%s'." % pdf_background_filename)
+    else:
+      # open PDF background
+      dest.seek(0)
+      pdf_journal = PdfFileReader(dest)
+      pdf_background = PdfFileReader(file(pdf_background_filename, 'rb'))
+
+      # merge journal and background
+      pdf_writer = PdfFileWriter()
+      for pageno, _ in enumerate(xml.getroot().iter('page')):
+        # page has PDF background?
+        if pageno in pdf_background_pages:
+          pdf_pageno = pdf_background_pages[pageno]
+
+          page = pdf_background.getPage(pdf_pageno)
+          page.mergePage(pdf_journal.getPage(pageno))
+        else:
+          page = pdf_journal.getPage(pageno)
+        pdf_writer.addPage(page)
 
   # print warnings
   if warnings:
@@ -108,7 +154,11 @@ def main():
       print >> sys.stderr, " -", line
 
   # print PDF
-  print dest.getvalue()
+  stdout = click.get_binary_stream('stdout')
+  if pdf_writer:
+    pdf_writer.write(stdout)
+  else:
+    stdout.write(dest.getvalue())
 
 
 if __name__ == '__main__':
