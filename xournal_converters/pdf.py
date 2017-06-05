@@ -5,7 +5,10 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.colors import toColor, Color
 from reportlab.pdfbase._fontdata import standardFonts
 from reportlab.lib.utils import ImageReader
-from StringIO import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import BytesIO
 from base64 import b64decode
 from PyPDF2 import PdfFileReader, PdfFileWriter
 import gzip, sys, os.path, click
@@ -22,7 +25,7 @@ def main():
         xml = ElementTree(file=fp)
 
     # render PDF
-    dest = StringIO()
+    dest = BytesIO()
     c = canvas.Canvas(dest, bottomup=0)
     warnings = []
     pdf_background_filename = None
@@ -172,9 +175,9 @@ def main():
 
     # print warnings
     if warnings:
-        print >> sys.stderr, "WARNINGS:"
+        sys.stderr.write( "WARNINGS:\n" )
         for line in warnings:
-            print >> sys.stderr, " -", line
+            sys.stderr.write(" -"+line+"\n")
 
     # print PDF
     stdout = click.get_binary_stream('stdout')
