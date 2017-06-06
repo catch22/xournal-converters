@@ -7,17 +7,11 @@ from reportlab.pdfbase._fontdata import standardFonts
 from reportlab.lib.utils import ImageReader
 from base64 import b64decode
 from PyPDF2 import PdfFileReader, PdfFileWriter
+from io import BytesIO
 import gzip, sys, os.path, click
 
 
 def main():
-    try:                               # Python 3 is default
-        from io import BytesIO
-        dest = BytesIO()
-    except ImportError:                # Fallback to Python 2.7
-        from StringIO import StringIO
-        dest = StringIO()
-
     # fetch path
     parser = ArgumentParser()
     parser.add_argument('src')
@@ -28,7 +22,7 @@ def main():
         xml = ElementTree(file=fp)
 
     # render PDF
-    # dest = BytesIO() # --> moved to import preambule
+    dest = BytesIO()
     c = canvas.Canvas(dest, bottomup=0)
     warnings = []
     pdf_background_filename = None
@@ -121,8 +115,8 @@ def main():
                 elif item.tag == 'image':
                     # png image base 64 encoded
                     png_data = b64decode(item.text)
-                    #png = Image.open(StringIO(png_data))
-                    png = ImageReader(StringIO(png_data))
+                    #png = Image.open(BytesIO(png_data))
+                    png = ImageReader(BytesIO(png_data))
                     x = float(item.attrib["left"])
                     y = float(item.attrib["top"])
                     width = float(item.attrib["right"]) - float(item.attrib[
@@ -142,7 +136,7 @@ def main():
 
         c.showPage()
 
-    # save PDF in the StringIO object (`dest`)
+    # save PDF in the BytesIO object (`dest`)
     c.save()
 
     # PDF file not found? Attempt to guess better if Xournal filename is of the form 'filename.pdf.xoj'.
