@@ -5,9 +5,9 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.colors import toColor, Color
 from reportlab.pdfbase._fontdata import standardFonts
 from reportlab.lib.utils import ImageReader
-from StringIO import StringIO
 from base64 import b64decode
 from PyPDF2 import PdfFileReader, PdfFileWriter
+from io import BytesIO
 import gzip, sys, os.path, click
 
 
@@ -22,15 +22,15 @@ def main():
         xml = ElementTree(file=fp)
 
     # render PDF
-    dest = StringIO()
+    dest = BytesIO()
     c = canvas.Canvas(dest, bottomup=0)
     warnings = []
     pdf_background_filename = None
     pdf_background_pages = {}
     for pageno, page in enumerate(xml.getroot().iter('page')):
         # set page size
-        c.setPageSize(
-            (float(page.attrib['width']), float(page.attrib['height'])))
+        c.setPageSize((float(page.attrib['width']),
+                       float(page.attrib['height'])))
 
         # fill with background color
         background = page.find('background')
@@ -107,22 +107,23 @@ def main():
                     c.setFillColor(item.attrib["color"])
                     dy = 0
                     for line in item.text.split("\n"):
-                        c.drawString(item.attrib["x"], dy +
-                                     float(item.attrib["y"]) + font_size, line)
+                        c.drawString(item.attrib["x"],
+                                     dy + float(item.attrib["y"]) + font_size,
+                                     line)
                         dy += float(item.attrib["size"])
 
                 # render image?
                 elif item.tag == 'image':
                     # png image base 64 encoded
                     png_data = b64decode(item.text)
-                    #png = Image.open(StringIO(png_data))
-                    png = ImageReader(StringIO(png_data))
+                    #png = Image.open(BytesIO(png_data))
+                    png = ImageReader(BytesIO(png_data))
                     x = float(item.attrib["left"])
                     y = float(item.attrib["top"])
-                    width = float(item.attrib["right"]) - float(item.attrib[
-                        "left"])
-                    height = float(item.attrib["bottom"]) - float(item.attrib[
-                        "top"])
+                    width = float(item.attrib["right"]) - float(
+                        item.attrib["left"])
+                    height = float(item.attrib["bottom"]) - float(
+                        item.attrib["top"])
                     c.saveState()
                     c.translate(x, y + height / 2)
                     c.scale(1, -1)
@@ -136,7 +137,7 @@ def main():
 
         c.showPage()
 
-    # save PDF in the StringIO object (`dest`)
+    # save PDF in the BytesIO object (`dest`)
     c.save()
 
     # PDF file not found? Attempt to guess better if Xournal filename is of the form 'filename.pdf.xoj'.
@@ -172,9 +173,9 @@ def main():
 
     # print warnings
     if warnings:
-        print >> sys.stderr, "WARNINGS:"
+        sys.stderr.write("WARNINGS:\n")
         for line in warnings:
-            print >> sys.stderr, " -", line
+            sys.stderr.write(" -" + line + "\n")
 
     # print PDF
     stdout = click.get_binary_stream('stdout')
