@@ -29,8 +29,8 @@ def main():
     pdf_background_pages = {}
     for pageno, page in enumerate(xml.getroot().iter('page')):
         # set page size
-        c.setPageSize(
-            (float(page.attrib['width']), float(page.attrib['height'])))
+        c.setPageSize((float(page.attrib['width']),
+                       float(page.attrib['height'])))
 
         # fill with background color
         background = page.find('background')
@@ -107,8 +107,9 @@ def main():
                     c.setFillColor(item.attrib["color"])
                     dy = 0
                     for line in item.text.split("\n"):
-                        c.drawString(item.attrib["x"], dy +
-                                     float(item.attrib["y"]) + font_size, line)
+                        c.drawString(item.attrib["x"],
+                                     dy + float(item.attrib["y"]) + font_size,
+                                     line)
                         dy += float(item.attrib["size"])
 
                 # render image?
@@ -119,10 +120,10 @@ def main():
                     png = ImageReader(BytesIO(png_data))
                     x = float(item.attrib["left"])
                     y = float(item.attrib["top"])
-                    width = float(item.attrib["right"]) - float(item.attrib[
-                        "left"])
-                    height = float(item.attrib["bottom"]) - float(item.attrib[
-                        "top"])
+                    width = float(item.attrib["right"]) - float(
+                        item.attrib["left"])
+                    height = float(item.attrib["bottom"]) - float(
+                        item.attrib["top"])
                     c.saveState()
                     c.translate(x, y + height / 2)
                     c.scale(1, -1)
@@ -172,9 +173,9 @@ def main():
 
     # print warnings
     if warnings:
-        sys.stderr.write( "WARNINGS:\n" )
+        sys.stderr.write("WARNINGS:\n")
         for line in warnings:
-            sys.stderr.write(" -"+line+"\n")
+            sys.stderr.write(" -" + line + "\n")
 
     # print PDF
     stdout = click.get_binary_stream('stdout')
