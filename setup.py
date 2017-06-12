@@ -22,7 +22,8 @@ except ImportError:
 setup(
     name='xournal-converters',
     version=version,
-    description='Python scripts for converting Xournal documents to HTML and PDF.',
+    description=
+    'Python scripts for converting Xournal documents to HTML and PDF.',
     long_description=long_description,
     url='https://github.com/catch22/xournal-converters',
     author='Michael Walter',
@@ -30,8 +31,10 @@ setup(
     license='MIT',
     classifiers=[
         'Development Status :: 3 - Alpha',
-        'Programming Language :: Python :: 2 :: Only',
+        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
         'Environment :: Console',
         'License :: OSI Approved :: MIT License',
     ],
