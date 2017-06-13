@@ -39,6 +39,9 @@ setup(
         'License :: OSI Approved :: MIT License',
     ],
     install_requires=['click', 'reportlab', 'PyPDF2'],
+    extras_require={
+        'dev': ['pypandoc', 'wheel'],
+    },
     packages=['xournal_converters'],
     entry_points={
         'console_scripts': [
