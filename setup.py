@@ -22,8 +22,8 @@ except ImportError:
 setup(
     name='xournal-converters',
     version=version,
-    description=
-    'Python scripts for converting Xournal documents to HTML and PDF.',
+    description='Python scripts for converting '
+    'Xournal documents to HTML and PDF.',
     long_description=long_description,
     url='https://github.com/catch22/xournal-converters',
     author='Michael Walter',
@@ -40,7 +40,7 @@ setup(
     ],
     install_requires=['click', 'reportlab', 'PyPDF2'],
     extras_require={
-        'dev': ['pypandoc', 'wheel'],
+        'dev': ['pypandoc', 'wheel', 'yapf', 'flake8'],
     },
     packages=['xournal_converters'],
     entry_points={

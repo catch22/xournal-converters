@@ -2,7 +2,7 @@
 from argparse import ArgumentParser
 from xml.etree.cElementTree import ElementTree
 from reportlab.pdfgen import canvas
-from reportlab.lib.colors import toColor, Color
+from reportlab.lib.colors import toColor
 from reportlab.pdfbase._fontdata import standardFonts
 from reportlab.lib.utils import ImageReader
 from base64 import b64decode
@@ -156,7 +156,7 @@ def main():
             # open PDF background
             dest.seek(0)
             pdf_journal = PdfFileReader(dest)
-            pdf_background = PdfFileReader(file(pdf_background_filename, 'rb'))
+            pdf_background = PdfFileReader(open(pdf_background_filename, 'rb'))
 
             # merge journal and background
             pdf_writer = PdfFileWriter()
