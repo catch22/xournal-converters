@@ -40,7 +40,7 @@ setup(
     ],
     install_requires=['click', 'reportlab', 'PyPDF2'],
     extras_require={
-        'dev': ['pypandoc', 'wheel', 'yapf', 'flake8'],
+        'dev': ['pypandoc', 'wheel', 'yapf', 'flake8', 'twine'],
     },
     packages=['xournal_converters'],
     entry_points={
