@@ -48,4 +48,5 @@ setup(
             'xoj2pdf = xournal_converters.pdf:main',
             'xoj2html = xournal_converters.html:main',
         ],
-    }, )
+    },
+)

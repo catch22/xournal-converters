@@ -29,8 +29,8 @@ def main():
     pdf_background_pages = {}
     for pageno, page in enumerate(xml.getroot().iter('page')):
         # set page size
-        c.setPageSize((float(page.attrib['width']),
-                       float(page.attrib['height'])))
+        c.setPageSize((float(page.attrib['width']), float(
+            page.attrib['height'])))
 
         # fill with background color
         background = page.find('background')
