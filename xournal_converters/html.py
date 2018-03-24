@@ -53,7 +53,7 @@ def main():
                             "Do not know how to handle stroke tool '%s'" %
                             item.attrib['tool'])
                     dest.write(
-                        '<path d="%s" fill="none" stroke="%s" stroke-width="%s" '
+                        '<path d="%s" fill="none" stroke="%s" stroke-width="%s" stroke-linecap="round" '
                         % (coords(item), item.attrib["color"],
                            item.attrib["width"]))
                     if item.attrib["tool"] == "highlighter":
