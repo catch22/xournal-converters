@@ -84,6 +84,7 @@ def main():
                         color.alpha = 0.5
                     c.setStrokeColor(color)
                     c.setLineWidth(float(item.attrib["width"]))
+                    c.setLineCap(1)  # round cap
 
                     # draw path
                     coords = item.text.split()
