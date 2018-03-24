@@ -30,19 +30,21 @@ def main():
         # determine background info
         background = page.find('background')
         if background.attrib['type'] == 'solid':
-            background_color = background.attrib['color']
             if background.attrib['style'] != 'plain':
                 errors.append("Do not know how to handle background style '%s'"
                               % background.attrib['style'])
+            background_color = background.attrib['color']
+            background_css = "background-color: %s;" % background_color
         else:
             errors.append("Do not know how to handle background type '%s'" %
                           background.attrib['type'])
+            background_css = ""
 
         # start new page
         dest.write('<p>\n')
         dest.write(
-            '<svg width="%spt" height="%spt" style="border: 1px solid black; background-color: %s" viewBox="0 0 %s %s">\n'
-            % (page.attrib['width'], page.attrib['height'], background_color,
+            '<svg width="%spt" height="%spt" style="border: 1px solid black; %s" viewBox="0 0 %s %s">\n'
+            % (page.attrib['width'], page.attrib['height'], background_css,
                page.attrib['width'], page.attrib['height']))
         for layer in page.iter('layer'):
             dest.write('<g>\n')
